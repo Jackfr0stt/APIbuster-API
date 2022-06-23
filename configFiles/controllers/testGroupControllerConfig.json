@@ -1,0 +1,8 @@
+{
+  "name": "testGroup",
+  "modelName": "Testgroup",
+  "controllerType": "REST Controller with CRUD functions",
+  "repositoryName": "TestgroupRepository",
+  "idType": "number",
+  "httpPathName": "/testgroups"
+}

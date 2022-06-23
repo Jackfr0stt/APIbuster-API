@@ -1,0 +1,8 @@
+{
+  "name": "api",
+  "modelName": "Api",
+  "controllerType": "REST Controller with CRUD functions",
+  "repositoryName": "ApiRepository",
+  "idType": "number",
+  "httpPathName": "/apis"
+}

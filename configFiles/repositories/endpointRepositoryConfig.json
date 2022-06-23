@@ -1,0 +1,7 @@
+{
+  "name": "Endpoint",
+  "datasource": "postgres",
+  "model": "Endpoint",
+  "id": "id",
+  "repositoryBaseClass": "DefaultCrudRepository"
+}

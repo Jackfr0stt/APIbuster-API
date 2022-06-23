@@ -1,0 +1,7 @@
+{
+  "name": "Testtype",
+  "datasource": "postgres",
+  "model": "Testtype",
+  "id": "id",
+  "repositoryBaseClass": "DefaultCrudRepository"
+}

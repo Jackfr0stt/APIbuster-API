@@ -1,0 +1,7 @@
+{
+  "name": "Api",
+  "datasource": "postgres",
+  "model": "Api",
+  "id": "id",
+  "repositoryBaseClass": "DefaultCrudRepository"
+}
