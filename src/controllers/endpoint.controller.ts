@@ -1,21 +1,13 @@
 import {
   Count,
-  CountSchema,
-  Filter,
-  FilterExcludingWhere,
+  CountSchema, FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Endpoint} from '../models';
 import {EndpointRepository} from '../repositories';
@@ -23,8 +15,8 @@ import {EndpointRepository} from '../repositories';
 export class EndpointController {
   constructor(
     @repository(EndpointRepository)
-    public endpointRepository : EndpointRepository,
-  ) {}
+    public endpointRepository: EndpointRepository,
+  ) { }
 
   @post('/endpoints')
   @response(200, {
@@ -71,9 +63,10 @@ export class EndpointController {
     },
   })
   async find(
-    @param.filter(Endpoint) filter?: Filter<Endpoint>,
+    @param.where(Endpoint) where?: Where<Endpoint>,
   ): Promise<Endpoint[]> {
-    return this.endpointRepository.find(filter);
+    let whereFilter: any = where;
+    return this.endpointRepository.find(whereFilter);
   }
 
   @patch('/endpoints')
