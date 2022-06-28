@@ -1,16 +1,16 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
-import {Testgroup} from '.';
+import {belongsTo, Entity, model, property} from '@loopback/repository';
+import {TestGroup} from '.';
 
 @model({
   settings: {
     idInjection: false,
     postgresql: {schema: 'public', table: 'test'},
     foreignKeys: {
-      fktest34176Rel: {
-        name: 'fktest34176Rel',
-        entity: 'Testgroup',
+      fktest204866Rel: {
+        name: 'fktest204866Rel',
+        entity: 'TestGroup',
         entityKey: 'id',
-        foreignKey: 'testgroupid'
+        foreignKey: 'testGroupid'
       }
     }
   }
@@ -24,36 +24,36 @@ export class Test extends Entity {
   })
   id?: number;
 
-  @belongsTo(() => Testgroup)
-  testgroupid: number;
+  @belongsTo(() => TestGroup)
+  testGroupId: number;
 
   @property({
     type: 'string',
     length: 255,
-    postgresql: {columnName: 'testbody', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
+    postgresql: {columnName: 'test_body', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
   })
-  testbody?: string;
+  testBody?: string;
 
   @property({
     type: 'string',
     length: 255,
-    postgresql: {columnName: 'testexpect', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
+    postgresql: {columnName: 'test_expect', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
   })
-  testexpect?: string;
+  testExpect?: string;
 
   @property({
     type: 'string',
     length: 255,
-    postgresql: {columnName: 'testname', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
+    postgresql: {columnName: 'test_name', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
   })
-  testname?: string;
+  testName?: string;
 
   @property({
     type: 'string',
     length: 255,
-    postgresql: {columnName: 'testtype', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
+    postgresql: {columnName: 'test_type', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
   })
-  testtype?: string;
+  testType?: string;
 
   @property({
     type: 'string',

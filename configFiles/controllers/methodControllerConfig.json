@@ -1,0 +1,8 @@
+{
+  "name": "method",
+  "modelName": "Method",
+  "controllerType": "REST Controller with CRUD functions",
+  "repositoryName": "MethodRepository",
+  "idType": "number",
+  "httpPathName": "/methods"
+}

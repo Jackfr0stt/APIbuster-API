@@ -17,134 +17,134 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {Testresult} from '../models';
-import {TestresultRepository} from '../repositories';
+import {TestResult} from '../models';
+import {TestResultRepository} from '../repositories';
 
 export class TestResultController {
   constructor(
-    @repository(TestresultRepository)
-    public testresultRepository : TestresultRepository,
+    @repository(TestResultRepository)
+    public testResultRepository : TestResultRepository,
   ) {}
 
-  @post('/testresults')
+  @post('/test-results')
   @response(200, {
-    description: 'Testresult model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Testresult)}},
+    description: 'TestResult model instance',
+    content: {'application/json': {schema: getModelSchemaRef(TestResult)}},
   })
   async create(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Testresult, {
-            title: 'NewTestresult',
+          schema: getModelSchemaRef(TestResult, {
+            title: 'NewTestResult',
             exclude: ['id'],
           }),
         },
       },
     })
-    testresult: Omit<Testresult, 'id'>,
-  ): Promise<Testresult> {
-    return this.testresultRepository.create(testresult);
+    testResult: Omit<TestResult, 'id'>,
+  ): Promise<TestResult> {
+    return this.testResultRepository.create(testResult);
   }
 
-  @get('/testresults/count')
+  @get('/test-results/count')
   @response(200, {
-    description: 'Testresult model count',
+    description: 'TestResult model count',
     content: {'application/json': {schema: CountSchema}},
   })
   async count(
-    @param.where(Testresult) where?: Where<Testresult>,
+    @param.where(TestResult) where?: Where<TestResult>,
   ): Promise<Count> {
-    return this.testresultRepository.count(where);
+    return this.testResultRepository.count(where);
   }
 
-  @get('/testresults')
+  @get('/test-results')
   @response(200, {
-    description: 'Array of Testresult model instances',
+    description: 'Array of TestResult model instances',
     content: {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(Testresult, {includeRelations: true}),
+          items: getModelSchemaRef(TestResult, {includeRelations: true}),
         },
       },
     },
   })
   async find(
-    @param.filter(Testresult) filter?: Filter<Testresult>,
-  ): Promise<Testresult[]> {
-    return this.testresultRepository.find(filter);
+    @param.filter(TestResult) filter?: Filter<TestResult>,
+  ): Promise<TestResult[]> {
+    return this.testResultRepository.find(filter);
   }
 
-  @patch('/testresults')
+  @patch('/test-results')
   @response(200, {
-    description: 'Testresult PATCH success count',
+    description: 'TestResult PATCH success count',
     content: {'application/json': {schema: CountSchema}},
   })
   async updateAll(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Testresult, {partial: true}),
+          schema: getModelSchemaRef(TestResult, {partial: true}),
         },
       },
     })
-    testresult: Testresult,
-    @param.where(Testresult) where?: Where<Testresult>,
+    testResult: TestResult,
+    @param.where(TestResult) where?: Where<TestResult>,
   ): Promise<Count> {
-    return this.testresultRepository.updateAll(testresult, where);
+    return this.testResultRepository.updateAll(testResult, where);
   }
 
-  @get('/testresults/{id}')
+  @get('/test-results/{id}')
   @response(200, {
-    description: 'Testresult model instance',
+    description: 'TestResult model instance',
     content: {
       'application/json': {
-        schema: getModelSchemaRef(Testresult, {includeRelations: true}),
+        schema: getModelSchemaRef(TestResult, {includeRelations: true}),
       },
     },
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(Testresult, {exclude: 'where'}) filter?: FilterExcludingWhere<Testresult>
-  ): Promise<Testresult> {
-    return this.testresultRepository.findById(id, filter);
+    @param.filter(TestResult, {exclude: 'where'}) filter?: FilterExcludingWhere<TestResult>
+  ): Promise<TestResult> {
+    return this.testResultRepository.findById(id, filter);
   }
 
-  @patch('/testresults/{id}')
+  @patch('/test-results/{id}')
   @response(204, {
-    description: 'Testresult PATCH success',
+    description: 'TestResult PATCH success',
   })
   async updateById(
     @param.path.number('id') id: number,
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Testresult, {partial: true}),
+          schema: getModelSchemaRef(TestResult, {partial: true}),
         },
       },
     })
-    testresult: Testresult,
+    testResult: TestResult,
   ): Promise<void> {
-    await this.testresultRepository.updateById(id, testresult);
+    await this.testResultRepository.updateById(id, testResult);
   }
 
-  @put('/testresults/{id}')
+  @put('/test-results/{id}')
   @response(204, {
-    description: 'Testresult PUT success',
+    description: 'TestResult PUT success',
   })
   async replaceById(
     @param.path.number('id') id: number,
-    @requestBody() testresult: Testresult,
+    @requestBody() testResult: TestResult,
   ): Promise<void> {
-    await this.testresultRepository.replaceById(id, testresult);
+    await this.testResultRepository.replaceById(id, testResult);
   }
 
-  @del('/testresults/{id}')
+  @del('/test-results/{id}')
   @response(204, {
-    description: 'Testresult DELETE success',
+    description: 'TestResult DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.testresultRepository.deleteById(id);
+    await this.testResultRepository.deleteById(id);
   }
 }

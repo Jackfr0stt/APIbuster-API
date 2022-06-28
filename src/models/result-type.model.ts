@@ -1,9 +1,9 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model({
-  settings: {idInjection: false, postgresql: {schema: 'public', table: 'testtype'}}
+  settings: {idInjection: false, postgresql: {schema: 'public', table: 'result_type'}}
 })
-export class Testtype extends Entity {
+export class ResultType extends Entity {
   @property({
     type: 'number',
     scale: 0,
@@ -15,9 +15,9 @@ export class Testtype extends Entity {
   @property({
     type: 'string',
     length: 255,
-    postgresql: {columnName: 'typename', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
+    postgresql: {columnName: 'type_name', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
   })
-  typename?: string;
+  typeName?: string;
 
   // Define well-known properties here
 
@@ -25,13 +25,13 @@ export class Testtype extends Entity {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [prop: string]: any;
 
-  constructor(data?: Partial<Testtype>) {
+  constructor(data?: Partial<ResultType>) {
     super(data);
   }
 }
 
-export interface TesttypeRelations {
+export interface ResultTypeRelations {
   // describe navigational properties here
 }
 
-export type TesttypeWithRelations = Testtype & TesttypeRelations;
+export type ResultTypeWithRelations = ResultType & ResultTypeRelations;

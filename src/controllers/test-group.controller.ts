@@ -1,143 +1,150 @@
 import {
   Count,
-  CountSchema, FilterExcludingWhere,
+  CountSchema,
+  Filter,
+  FilterExcludingWhere,
   repository,
-  Where
+  Where,
 } from '@loopback/repository';
 import {
-  del, get,
-  getModelSchemaRef, param, patch, post, put, requestBody,
-  response
+  post,
+  param,
+  get,
+  getModelSchemaRef,
+  patch,
+  put,
+  del,
+  requestBody,
+  response,
 } from '@loopback/rest';
-import {Testgroup} from '../models';
-import {TestgroupRepository} from '../repositories';
+import {TestGroup} from '../models';
+import {TestGroupRepository} from '../repositories';
 
 export class TestGroupController {
   constructor(
-    @repository(TestgroupRepository)
-    public testgroupRepository: TestgroupRepository,
-  ) { }
+    @repository(TestGroupRepository)
+    public testGroupRepository : TestGroupRepository,
+  ) {}
 
-  @post('/testgroups')
+  @post('/test-groups')
   @response(200, {
-    description: 'Testgroup model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Testgroup)}},
+    description: 'TestGroup model instance',
+    content: {'application/json': {schema: getModelSchemaRef(TestGroup)}},
   })
   async create(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Testgroup, {
-            title: 'NewTestgroup',
+          schema: getModelSchemaRef(TestGroup, {
+            title: 'NewTestGroup',
             exclude: ['id'],
           }),
         },
       },
     })
-    testgroup: Omit<Testgroup, 'id'>,
-  ): Promise<Testgroup> {
-    return this.testgroupRepository.create(testgroup);
+    testGroup: Omit<TestGroup, 'id'>,
+  ): Promise<TestGroup> {
+    return this.testGroupRepository.create(testGroup);
   }
 
-  @get('/testgroups/count')
+  @get('/test-groups/count')
   @response(200, {
-    description: 'Testgroup model count',
+    description: 'TestGroup model count',
     content: {'application/json': {schema: CountSchema}},
   })
   async count(
-    @param.where(Testgroup) where?: Where<Testgroup>,
+    @param.where(TestGroup) where?: Where<TestGroup>,
   ): Promise<Count> {
-    return this.testgroupRepository.count(where);
+    return this.testGroupRepository.count(where);
   }
 
-  @get('/testgroups')
+  @get('/test-groups')
   @response(200, {
-    description: 'Array of Testgroup model instances',
+    description: 'Array of TestGroup model instances',
     content: {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(Testgroup, {includeRelations: true}),
+          items: getModelSchemaRef(TestGroup, {includeRelations: true}),
         },
       },
     },
   })
   async find(
-    @param.where(Testgroup) where?: Where<Testgroup>,
-  ): Promise<Testgroup[]> {
-    let whereFilter: any = where;
-    return this.testgroupRepository.find(whereFilter);
+    @param.filter(TestGroup) filter?: Filter<TestGroup>,
+  ): Promise<TestGroup[]> {
+    return this.testGroupRepository.find(filter);
   }
 
-  @patch('/testgroups')
+  @patch('/test-groups')
   @response(200, {
-    description: 'Testgroup PATCH success count',
+    description: 'TestGroup PATCH success count',
     content: {'application/json': {schema: CountSchema}},
   })
   async updateAll(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Testgroup, {partial: true}),
+          schema: getModelSchemaRef(TestGroup, {partial: true}),
         },
       },
     })
-    testgroup: Testgroup,
-    @param.where(Testgroup) where?: Where<Testgroup>,
+    testGroup: TestGroup,
+    @param.where(TestGroup) where?: Where<TestGroup>,
   ): Promise<Count> {
-    return this.testgroupRepository.updateAll(testgroup, where);
+    return this.testGroupRepository.updateAll(testGroup, where);
   }
 
-  @get('/testgroups/{id}')
+  @get('/test-groups/{id}')
   @response(200, {
-    description: 'Testgroup model instance',
+    description: 'TestGroup model instance',
     content: {
       'application/json': {
-        schema: getModelSchemaRef(Testgroup, {includeRelations: true}),
+        schema: getModelSchemaRef(TestGroup, {includeRelations: true}),
       },
     },
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(Testgroup, {exclude: 'where'}) filter?: FilterExcludingWhere<Testgroup>
-  ): Promise<Testgroup> {
-    return this.testgroupRepository.findById(id, filter);
+    @param.filter(TestGroup, {exclude: 'where'}) filter?: FilterExcludingWhere<TestGroup>
+  ): Promise<TestGroup> {
+    return this.testGroupRepository.findById(id, filter);
   }
 
-  @patch('/testgroups/{id}')
+  @patch('/test-groups/{id}')
   @response(204, {
-    description: 'Testgroup PATCH success',
+    description: 'TestGroup PATCH success',
   })
   async updateById(
     @param.path.number('id') id: number,
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Testgroup, {partial: true}),
+          schema: getModelSchemaRef(TestGroup, {partial: true}),
         },
       },
     })
-    testgroup: Testgroup,
+    testGroup: TestGroup,
   ): Promise<void> {
-    await this.testgroupRepository.updateById(id, testgroup);
+    await this.testGroupRepository.updateById(id, testGroup);
   }
 
-  @put('/testgroups/{id}')
+  @put('/test-groups/{id}')
   @response(204, {
-    description: 'Testgroup PUT success',
+    description: 'TestGroup PUT success',
   })
   async replaceById(
     @param.path.number('id') id: number,
-    @requestBody() testgroup: Testgroup,
+    @requestBody() testGroup: TestGroup,
   ): Promise<void> {
-    await this.testgroupRepository.replaceById(id, testgroup);
+    await this.testGroupRepository.replaceById(id, testGroup);
   }
 
-  @del('/testgroups/{id}')
+  @del('/test-groups/{id}')
   @response(204, {
-    description: 'Testgroup DELETE success',
+    description: 'TestGroup DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.testgroupRepository.deleteById(id);
+    await this.testGroupRepository.deleteById(id);
   }
 }

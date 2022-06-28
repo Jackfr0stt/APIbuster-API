@@ -1,8 +1,0 @@
-{
-  "name": "endpoint",
-  "modelName": "Endpoint",
-  "controllerType": "REST Controller with CRUD functions",
-  "repositoryName": "EndpointRepository",
-  "idType": "number",
-  "httpPathName": "/endpoints"
-}

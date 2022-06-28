@@ -13,30 +13,23 @@ export class Api extends Entity {
   @property({
     type: 'string',
     length: 255,
-    postgresql: {columnName: 'apiname', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
+    postgresql: {columnName: 'api_domain', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
   })
-  apiname?: string;
+  apiDomain?: string;
 
   @property({
     type: 'string',
     length: 255,
-    postgresql: {columnName: 'apitype', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
+    postgresql: {columnName: 'api_name', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
   })
-  apitype?: string;
+  apiName?: string;
 
   @property({
     type: 'string',
     length: 255,
-    postgresql: {columnName: 'domain', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
+    postgresql: {columnName: 'api_type', dataType: 'character varying', dataLength: 255, dataPrecision: null, dataScale: null, nullable: 'YES'},
   })
-  domain?: string;
-
-  @property({
-    type: 'number',
-    scale: 0,
-    postgresql: {columnName: 'userid', dataType: 'integer', dataLength: null, dataPrecision: null, dataScale: 0, nullable: 'YES'},
-  })
-  userid?: number;
+  apiType?: string;
 
   // Define well-known properties here
 

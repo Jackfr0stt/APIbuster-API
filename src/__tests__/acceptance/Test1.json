@@ -1,0 +1,36 @@
+{
+  "stats": {
+    "suites": 2,
+    "tests": 1,
+    "passes": 1,
+    "pending": 0,
+    "failures": 0,
+    "start": "2022-06-28T17:32:19.993Z",
+    "end": "2022-06-28T17:32:20.006Z",
+    "duration": 13
+  },
+  "tests": [
+    {
+      "title": "GET /apis",
+      "fullTitle": "1st test attempt Testing /apis GET /apis",
+      "file": "C:\\Users\\Jackfr0stt\\Desktop\\APIbuster\\APIbuster-API\\src\\__tests__\\acceptance\\testFile.test.js",
+      "duration": 11,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    }
+  ],
+  "pending": [],
+  "failures": [],
+  "passes": [
+    {
+      "title": "GET /apis",
+      "fullTitle": "1st test attempt Testing /apis GET /apis",
+      "file": "C:\\Users\\Jackfr0stt\\Desktop\\APIbuster\\APIbuster-API\\src\\__tests__\\acceptance\\testFile.test.js",
+      "duration": 11,
+      "currentRetry": 0,
+      "speed": "fast",
+      "err": {}
+    }
+  ]
+}

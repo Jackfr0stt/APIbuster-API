@@ -1,0 +1,36 @@
+{
+  "stats": {
+    "suites": 2,
+    "tests": 1,
+    "passes": 1,
+    "pending": 0,
+    "failures": 0,
+    "start": "2022-06-28T21:43:08.911Z",
+    "end": "2022-06-28T21:43:08.968Z",
+    "duration": 57
+  },
+  "tests": [
+    {
+      "title": "Test 2",
+      "fullTitle": "List all APIs tests Test group 1 tests Test 2",
+      "file": "C:\\Users\\Jackfr0stt\\Desktop\\APIbuster\\APIbuster-API\\src\\__tests__\\acceptance\\Test2.test.js",
+      "duration": 56,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    }
+  ],
+  "pending": [],
+  "failures": [],
+  "passes": [
+    {
+      "title": "Test 2",
+      "fullTitle": "List all APIs tests Test group 1 tests Test 2",
+      "file": "C:\\Users\\Jackfr0stt\\Desktop\\APIbuster\\APIbuster-API\\src\\__tests__\\acceptance\\Test2.test.js",
+      "duration": 56,
+      "currentRetry": 0,
+      "speed": "medium",
+      "err": {}
+    }
+  ]
+}
