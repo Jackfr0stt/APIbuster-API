@@ -1,21 +1,13 @@
 import {
   Count,
-  CountSchema,
-  Filter,
-  FilterExcludingWhere,
+  CountSchema, FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Method} from '../models';
 import {MethodRepository} from '../repositories';
@@ -23,8 +15,8 @@ import {MethodRepository} from '../repositories';
 export class MethodController {
   constructor(
     @repository(MethodRepository)
-    public methodRepository : MethodRepository,
-  ) {}
+    public methodRepository: MethodRepository,
+  ) { }
 
   @post('/methods')
   @response(200, {
@@ -71,9 +63,10 @@ export class MethodController {
     },
   })
   async find(
-    @param.filter(Method) filter?: Filter<Method>,
+    @param.where(Method) where?: Where<Method>,
   ): Promise<Method[]> {
-    return this.methodRepository.find(filter);
+    let whereFilter: any = where;
+    return this.methodRepository.find(whereFilter);
   }
 
   @patch('/methods')
