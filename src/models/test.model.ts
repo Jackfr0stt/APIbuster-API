@@ -10,7 +10,7 @@ import {TestGroup} from '.';
         name: 'fktest204866Rel',
         entity: 'TestGroup',
         entityKey: 'id',
-        foreignKey: 'testGroupid'
+        foreignKey: 'test_groupid'
       }
     }
   }
@@ -25,7 +25,7 @@ export class Test extends Entity {
   id?: number;
 
   @belongsTo(() => TestGroup)
-  testGroupId: number;
+  test_groupId: number;
 
   @property({
     type: 'string',
