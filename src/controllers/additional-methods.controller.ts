@@ -61,7 +61,7 @@ export class AdditionalController {
     }
 
     // sets files name and path
-    const fileName = await testGroup.data.testname.replace(/\s/g, '');
+    const fileName = await testGroup.data.testGroupName.replace(/\s/g, '');
     const testFile = `src/__tests__/acceptance/${fileName}.test.js`;
     const outputFile = `src/__tests__/acceptance/${fileName}.json`;
 
@@ -73,15 +73,15 @@ export class AdditionalController {
     let expected: string = "";
     const closeString = `\n});`;
 
-    describe = `describe('${method.data.method} tests', async () => {
+    describe = `describe('${method.data.methodName} tests', async () => {
       describe('${testGroup.data.testGroupName} tests', async () => {\n`
 
-    tests.data.forEach(async (test: any) => {
+    for (let test of tests.data) {
       expected = `it('${test.testName}', async () => {
-        const res = await axios.${method.data.methodType.toLowerCase()}("${api.data.domain}${method.data.route}");\n`;
+        const res = await axios.${method.data.methodType.toLowerCase()}("${api.data.apiDomain}${method.data.methodRoute}");\n`;
       expected = expected + test.testExpect + closeString;
       expected = expected.replace(/expect/gi, "testlab.expect");
-    });
+    };
 
     const content = requirements + describe + expected + closeString + closeString;
 
@@ -178,10 +178,10 @@ export class AdditionalController {
     const requirements = `const testlab = require('@loopback/testlab');
     const axios = require('axios');\n`;
 
-    const describe = `describe('${method.data.method} tests', async () => {
+    const describe = `describe('${method.data.methodName} tests', async () => {
       describe('${testGroup.data.testGroupName} tests', async () => {
         it('${test.data.testName}', async () => {
-          const res = await axios.${method.data.methodType.toLowerCase()}("${api.data.domain}${method.data.route}");\n`;
+          const res = await axios.${method.data.methodType.toLowerCase()}("${api.data.apiDomain}${method.data.methodRoute}");\n`;
 
     let expected = test.data.testExpect;
     expected = await expected.replace(/expect/gi, "testlab.expect");
