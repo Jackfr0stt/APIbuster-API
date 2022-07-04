@@ -34,7 +34,11 @@ export class AdditionalController {
     @param.path.number('id') id: number,
   ): Promise<any> {
     let mocha = new Mocha();
-    let result: any;
+    let result: any = {
+      passes: [],
+      failures: [],
+      pending: []
+    };
 
     // find testGroup instance
     const testGroup = await wrapper(this.testGroupRepository.findById(id));
@@ -47,6 +51,8 @@ export class AdditionalController {
     if (tests.error) {
       throw tests.error;
     }
+
+    console.log("tests: ", tests.data);
 
     // find method instance
     const method = await wrapper(this.methodRepository.findById(testGroup.data.methodId));
@@ -76,10 +82,11 @@ export class AdditionalController {
     describe = `describe('${method.data.methodName} tests', async () => {
       describe('${testGroup.data.testGroupName} tests', async () => {\n`
 
+    // appends each test to create tests
     for (let test of tests.data) {
-      expected = `it('${test.testName}', async () => {
+      expected = expected + `it('${test.testName}', async () => {
         const res = await axios.${method.data.methodType.toLowerCase()}("${api.data.apiDomain}${method.data.methodRoute}");\n`;
-      expected = expected + test.testExpect + closeString;
+      expected = expected + test.testExpect + closeString + '\n';
       expected = expected.replace(/expect/gi, "testlab.expect");
     };
 
@@ -108,27 +115,82 @@ export class AdditionalController {
       testGroupDuration: output.stats.duration
     }));
 
-    console.log("passes: ", output.passes);
-
+    // passes array
     for (let test of output.passes) {
       const currentTest = await wrapper(this.testRepository.findOne({
         where: {
           testName: test.title
         }
       }));
-      const result = {
+
+      const testResult = {
         testId: currentTest.data.id,
         result_typeId: 1,
         resultTitle: test.title,
         resultDuration: test.duration,
         resultSpeed: test.speed,
-        resultError: JSON.stringify(test.err)
+        resultError: JSON.stringify(test.err),
+        resultDate: (new Date()).toISOString()
       }
 
-      const testResult = await wrapper(this.testResultRepository.create(result));
-      if (testResult.error) {
-        throw testResult.error;
+      const createdResult = await wrapper(this.testResultRepository.create(testResult));
+      if (createdResult.error) {
+        throw createdResult.error;
       }
+
+      await result.passes.push(createdResult.data);
+    }
+
+    // failures array
+    for (let test of output.failures) {
+      const currentTest = await wrapper(this.testRepository.findOne({
+        where: {
+          testName: test.title
+        }
+      }));
+
+      const testResult = {
+        testId: currentTest.data.id,
+        result_typeId: 2,
+        resultTitle: test.title,
+        resultDuration: test.duration,
+        resultSpeed: test.speed,
+        resultError: test.err.message,
+        resultDate: (new Date()).toISOString()
+      }
+
+      const createdResult = await wrapper(this.testResultRepository.create(testResult));
+      if (createdResult.error) {
+        throw createdResult.error;
+      }
+
+      await result.failures.push(createdResult.data);
+    }
+
+    // pending array
+    for (let test of output.pending) {
+      const currentTest = await wrapper(this.testRepository.findOne({
+        where: {
+          testName: test.title
+        }
+      }));
+
+      const testResult = {
+        testId: currentTest.data.id,
+        result_typeId: 3,
+        resultTitle: test.title,
+        resultDuration: test.duration,
+        resultSpeed: test.speed,
+        resultError: JSON.stringify(test.err),
+        resultDate: (new Date()).toISOString()
+      }
+
+      const createdResult = await wrapper(this.testResultRepository.create(testResult));
+      if (createdResult.error) {
+        throw createdResult.error;
+      }
+
+      await result.pending.push(createdResult.data);
     }
 
     return result;
@@ -269,5 +331,55 @@ export class AdditionalController {
     }
 
     return latestResult.data;
+  }
+
+  @get('/test-groups/{id}/latest-results')
+  @response(200, {
+    description: 'Latest TestResult model instance',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(TestResult),
+        },
+      },
+    },
+  })
+  async findLatestResults(
+    @param.path.number('id') id: number,
+  ): Promise<any[]> {
+    const testsFilter = {
+      where: {
+        test_groupId: id,
+      }
+    };
+
+    const tests = await wrapper(this.testRepository.find(testsFilter));
+    if (tests.error) {
+      throw tests.error;
+    }
+
+    let auxTests: any[] = [];
+
+    for (let test of tests.data) {
+      let auxTest = await Object.assign({}, test);
+
+      const resultFilter = {
+        where: {
+          testId: test.id,
+        },
+        order: ['resultDate DESC']
+      }
+
+      const latestResult = await wrapper(this.testResultRepository.findOne(resultFilter));
+      if (latestResult.error) {
+        throw latestResult.error;
+      }
+
+      auxTest.latestResult = latestResult.data;
+      auxTests.push(auxTest);
+    }
+
+    return auxTests;
   }
 }

@@ -1,33 +1,56 @@
 {
   "stats": {
     "suites": 2,
-    "tests": 1,
+    "tests": 2,
     "passes": 1,
     "pending": 0,
-    "failures": 0,
-    "start": "2022-07-03T10:30:09.166Z",
-    "end": "2022-07-03T10:30:09.179Z",
-    "duration": 13
+    "failures": 1,
+    "start": "2022-07-04T14:20:36.033Z",
+    "end": "2022-07-04T14:20:36.163Z",
+    "duration": 130
   },
   "tests": [
     {
       "title": "Test 1",
       "fullTitle": "List all apis tests Test group 1 tests Test 1",
-      "file": "C:\\Users\\pedro\\OneDrive\\Ambiente de Trabalho\\APIbuster\\APIbuster-API\\src\\__tests__\\acceptance\\Testgroup1.test.js",
-      "duration": 12,
+      "file": "C:\\Users\\Jackfr0stt\\Desktop\\APIbuster\\APIbuster-API\\src\\__tests__\\acceptance\\Testgroup1.test.js",
+      "duration": 122,
+      "currentRetry": 0,
+      "err": {
+        "stack": "TypeError: Cannot read property 'expect' of undefined\n    at Context.<anonymous> (src\\__tests__\\acceptance\\Testgroup1.test.js:7:17)\n    at processTicksAndRejections (internal/process/task_queues.js:95:5)",
+        "message": "Cannot read property 'expect' of undefined"
+      }
+    },
+    {
+      "title": "Test 2",
+      "fullTitle": "List all apis tests Test group 1 tests Test 2",
+      "file": "C:\\Users\\Jackfr0stt\\Desktop\\APIbuster\\APIbuster-API\\src\\__tests__\\acceptance\\Testgroup1.test.js",
+      "duration": 5,
       "currentRetry": 0,
       "speed": "fast",
       "err": {}
     }
   ],
   "pending": [],
-  "failures": [],
-  "passes": [
+  "failures": [
     {
       "title": "Test 1",
       "fullTitle": "List all apis tests Test group 1 tests Test 1",
-      "file": "C:\\Users\\pedro\\OneDrive\\Ambiente de Trabalho\\APIbuster\\APIbuster-API\\src\\__tests__\\acceptance\\Testgroup1.test.js",
-      "duration": 12,
+      "file": "C:\\Users\\Jackfr0stt\\Desktop\\APIbuster\\APIbuster-API\\src\\__tests__\\acceptance\\Testgroup1.test.js",
+      "duration": 122,
+      "currentRetry": 0,
+      "err": {
+        "stack": "TypeError: Cannot read property 'expect' of undefined\n    at Context.<anonymous> (src\\__tests__\\acceptance\\Testgroup1.test.js:7:17)\n    at processTicksAndRejections (internal/process/task_queues.js:95:5)",
+        "message": "Cannot read property 'expect' of undefined"
+      }
+    }
+  ],
+  "passes": [
+    {
+      "title": "Test 2",
+      "fullTitle": "List all apis tests Test group 1 tests Test 2",
+      "file": "C:\\Users\\Jackfr0stt\\Desktop\\APIbuster\\APIbuster-API\\src\\__tests__\\acceptance\\Testgroup1.test.js",
+      "duration": 5,
       "currentRetry": 0,
       "speed": "fast",
       "err": {}

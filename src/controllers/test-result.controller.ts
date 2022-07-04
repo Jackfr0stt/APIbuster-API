@@ -1,21 +1,13 @@
 import {
   Count,
-  CountSchema,
-  Filter,
-  FilterExcludingWhere,
+  CountSchema, FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {TestResult} from '../models';
 import {TestResultRepository} from '../repositories';
@@ -23,8 +15,8 @@ import {TestResultRepository} from '../repositories';
 export class TestResultController {
   constructor(
     @repository(TestResultRepository)
-    public testResultRepository : TestResultRepository,
-  ) {}
+    public testResultRepository: TestResultRepository,
+  ) { }
 
   @post('/test-results')
   @response(200, {
@@ -71,9 +63,10 @@ export class TestResultController {
     },
   })
   async find(
-    @param.filter(TestResult) filter?: Filter<TestResult>,
+    @param.where(TestResult) where?: Where<TestResult>,
   ): Promise<TestResult[]> {
-    return this.testResultRepository.find(filter);
+    let whereFilter: any = where;
+    return this.testResultRepository.find(whereFilter);
   }
 
   @patch('/test-results')
