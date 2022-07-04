@@ -5,16 +5,16 @@
     "passes": 1,
     "pending": 0,
     "failures": 0,
-    "start": "2022-06-28T21:43:08.911Z",
-    "end": "2022-06-28T21:43:08.968Z",
-    "duration": 57
+    "start": "2022-07-04T21:23:17.526Z",
+    "end": "2022-07-04T21:23:17.594Z",
+    "duration": 68
   },
   "tests": [
     {
       "title": "Test 2",
-      "fullTitle": "List all APIs tests Test group 1 tests Test 2",
+      "fullTitle": "List all apis tests Test group 1 tests Test 2",
       "file": "C:\\Users\\Jackfr0stt\\Desktop\\APIbuster\\APIbuster-API\\src\\__tests__\\acceptance\\Test2.test.js",
-      "duration": 56,
+      "duration": 66,
       "currentRetry": 0,
       "speed": "medium",
       "err": {}
@@ -25,9 +25,9 @@
   "passes": [
     {
       "title": "Test 2",
-      "fullTitle": "List all APIs tests Test group 1 tests Test 2",
+      "fullTitle": "List all apis tests Test group 1 tests Test 2",
       "file": "C:\\Users\\Jackfr0stt\\Desktop\\APIbuster\\APIbuster-API\\src\\__tests__\\acceptance\\Test2.test.js",
-      "duration": 56,
+      "duration": 66,
       "currentRetry": 0,
       "speed": "medium",
       "err": {}

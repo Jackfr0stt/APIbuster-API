@@ -52,8 +52,6 @@ export class AdditionalController {
       throw tests.error;
     }
 
-    console.log("tests: ", tests.data);
-
     // find method instance
     const method = await wrapper(this.methodRepository.findById(testGroup.data.methodId));
     if (method.error) {
@@ -87,9 +85,9 @@ export class AdditionalController {
       expected = expected + `it('${test.testName}', async () => {
         const res = await axios.${method.data.methodType.toLowerCase()}("${api.data.apiDomain}${method.data.methodRoute}");\n`;
       expected = expected + test.testExpect + closeString + '\n';
-      expected = expected.replace(/expect/gi, "testlab.expect");
     };
 
+    expected = expected.replace(/expect/gi, "testlab.expect");
     const content = requirements + describe + expected + closeString + closeString;
 
     await fs.promises.writeFile(testFile, content);
@@ -129,7 +127,7 @@ export class AdditionalController {
         resultTitle: test.title,
         resultDuration: test.duration,
         resultSpeed: test.speed,
-        resultError: JSON.stringify(test.err),
+        resultError: test.err.message,
         resultDate: (new Date()).toISOString()
       }
 
@@ -181,7 +179,7 @@ export class AdditionalController {
         resultTitle: test.title,
         resultDuration: test.duration,
         resultSpeed: test.speed,
-        resultError: JSON.stringify(test.err),
+        resultError: test.err.message,
         resultDate: (new Date()).toISOString()
       }
 
@@ -275,30 +273,79 @@ export class AdditionalController {
       testGroupDuration: output.stats.duration
     }));
 
-    console.log("passes: ", output.passes);
-
     for (let test of output.passes) {
       const currentTest = await wrapper(this.testRepository.findOne({
         where: {
           testName: test.title
         }
       }));
-      const result = {
+      const testResult = {
         testId: currentTest.data.id,
-        resultTypeId: 1,
+        result_typeId: 1,
         resultTitle: test.title,
         resultDuration: test.duration,
         resultSpeed: test.speed,
-        resultError: JSON.stringify(test.err)
+        resultError: test.err.message,
+        resultDate: (new Date()).toISOString()
       }
 
-      console.log("test_result: ", result);
-      const testResult = await wrapper(this.testResultRepository.create(result));
-      if (testResult.error) {
-        throw testResult.error;
+      const createdResult = await wrapper(this.testResultRepository.create(testResult));
+      if (createdResult.error) {
+        throw createdResult.error;
       }
+
+      result = createdResult.data;
     }
 
+    for (let test of output.failures) {
+      const currentTest = await wrapper(this.testRepository.findOne({
+        where: {
+          testName: test.title
+        }
+      }));
+      const testResult = {
+        testId: currentTest.data.id,
+        result_typeId: 2,
+        resultTitle: test.title,
+        resultDuration: test.duration,
+        resultSpeed: test.speed,
+        resultError: test.err.message,
+        resultDate: (new Date()).toISOString()
+      }
+
+      const createdResult = await wrapper(this.testResultRepository.create(testResult));
+      if (createdResult.error) {
+        throw createdResult.error;
+      }
+
+      result = createdResult.data;
+    }
+
+    for (let test of output.pending) {
+      const currentTest = await wrapper(this.testRepository.findOne({
+        where: {
+          testName: test.title
+        }
+      }));
+      const testResult = {
+        testId: currentTest.data.id,
+        result_typeId: 3,
+        resultTitle: test.title,
+        resultDuration: test.duration,
+        resultSpeed: test.speed,
+        resultError: test.err.message,
+        resultDate: (new Date()).toISOString()
+      }
+
+      const createdResult = await wrapper(this.testResultRepository.create(testResult));
+      if (createdResult.error) {
+        throw createdResult.error;
+      }
+
+      result = createdResult.data;
+    }
+
+    console.log(result);
     return result;
   }
 
