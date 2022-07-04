@@ -16,7 +16,7 @@ import {ResultType, Test} from '.';
         name: 'fktestResul888717Rel',
         entity: 'ResultType',
         entityKey: 'id',
-        foreignKey: 'resultTypeid'
+        foreignKey: 'result_typeid'
       }
     }
   }
@@ -31,7 +31,7 @@ export class TestResult extends Entity {
   id?: number;
 
   @belongsTo(() => ResultType)
-  resultTypeId: number;
+  result_typeId: number;
 
   @belongsTo(() => Test)
   testId: number;

@@ -118,7 +118,7 @@ export class AdditionalController {
       }));
       const result = {
         testId: currentTest.data.id,
-        resultTypeId: 1,
+        result_typeId: 1,
         resultTitle: test.title,
         resultDuration: test.duration,
         resultSpeed: test.speed,
