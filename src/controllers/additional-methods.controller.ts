@@ -120,30 +120,6 @@ export class AdditionalController {
     }
   }
 
-  @get('/file')
-  @response(200, {
-    description: 'Array of TestResult model instances',
-    content: {
-      'application/json': {
-        schema: {
-          type: 'array',
-          items: getModelSchemaRef(TestResult, {includeRelations: true}),
-        },
-      },
-    },
-  })
-  async getFile(
-    // @param.path.number('id') id: number,
-    // @param.filter(TestResult) filter?: Filter<TestResult>,
-  ): Promise<any> {
-    const storage = multer.memoryStorage();
-    const upload = multer({storage});
-    console.log(storage);
-    console.log(upload);
-
-    // return file;
-  }
-
   @get('/test-groups/{id}/run')
   @response(200, {
     description: 'Run Test Group model instance Tests',
