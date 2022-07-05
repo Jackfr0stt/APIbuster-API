@@ -1,15 +1,18 @@
+import {inject} from '@loopback/core';
 import {
   repository
 } from '@loopback/repository';
 import {
   get,
-  getModelSchemaRef, param, response
+  getModelSchemaRef, param, post, Request, requestBody, Response, response, RestBindings
 } from '@loopback/rest';
 import fs from 'fs';
 import Mocha from 'mocha';
+import multer from 'multer';
 import {Test, TestResult} from '../models';
 import {ApiRepository, MethodRepository, TestGroupRepository, TestRepository, TestResultRepository} from '../repositories';
 import {wrapper} from '../utils/wrapper';
+import {MethodController} from './method.controller';
 
 export class AdditionalController {
   constructor(
@@ -24,6 +27,122 @@ export class AdditionalController {
     @repository(TestResultRepository)
     public testResultRepository: TestResultRepository,
   ) { }
+
+  @post('/apis/{id}/json')
+  @response(200, {
+    description: 'TestResult model instance',
+    content: {'application/json': {schema: getModelSchemaRef(TestResult)}},
+  })
+  async apiMethods(
+    @requestBody({
+      description: 'multipart/form-data value.',
+      required: true,
+      content: {
+        'multipart/form-data': {
+          // Skip body parsing
+          'x-parser': 'stream',
+          schema: {type: 'object'},
+        },
+      },
+    })
+    request: Request,
+    @param.path.number('id') id: number,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+  ): Promise<any> {
+    const storage = multer.memoryStorage();
+    const upload = multer({storage});
+
+    const promise = new Promise<any>((resolve, reject) => {
+      upload.any()(request, response, err => {
+        if (err) return reject(err);
+        else {
+          resolve({
+            files: request.files,
+            fields: (request as any).fields,
+          });
+        }
+      });
+    });
+
+    const file = await promise;
+
+    const json = JSON.parse(file.files[0].buffer.toString());
+    const routes = json.paths;
+    const schemas = json.components.schemas;
+
+    // build endpoints
+    for (let route in routes) {
+      let method = {
+        apiId: id,
+        methodName: "",
+        methodRoute: "",
+        methodType: "",
+        methodBody: "{}",
+        methodHeader: "{}"
+      }
+
+      method.methodRoute = route;
+      const methods = routes[route];
+      for (let methodType in methods) {
+        method.methodType = (methodType).toUpperCase();
+        method.methodName = methods[methodType].operationId;
+
+        if (methods[methodType].requestBody && Object.keys(methods[methodType].requestBody.content).includes("application/json")) {
+          method.methodHeader = JSON.stringify({
+            "Content-Type": "application/json"
+          });
+
+          const content = methods[methodType].requestBody.content;
+          let modelName = content["application/json"].schema.$ref;
+          const auxName = modelName.split('/');
+          modelName = auxName[auxName.length - 1];
+
+          for (let schema in schemas) {
+            if (schema == modelName) {
+              const modelBody: any = {};
+              const keys = Object.keys(schemas[schema].properties);
+              for (let key of keys) {
+                modelBody[key] = schemas[schema].properties[key].type;
+              }
+
+              method.methodBody = JSON.stringify(modelBody);
+            }
+          }
+        }
+      }
+
+      // create method in DB
+      const methodController = new MethodController(this.methodRepository);
+      const createdMethod = await wrapper(methodController.create(method));
+      if (createdMethod.error) {
+        throw createdMethod.error;
+      }
+    }
+  }
+
+  @get('/file')
+  @response(200, {
+    description: 'Array of TestResult model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(TestResult, {includeRelations: true}),
+        },
+      },
+    },
+  })
+  async getFile(
+    // @param.path.number('id') id: number,
+    // @param.filter(TestResult) filter?: Filter<TestResult>,
+  ): Promise<any> {
+    const storage = multer.memoryStorage();
+    const upload = multer({storage});
+    console.log(storage);
+    console.log(upload);
+
+    // return file;
+  }
 
   @get('/test-groups/{id}/run')
   @response(200, {
