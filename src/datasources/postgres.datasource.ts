@@ -5,7 +5,7 @@ const config = {
   name: 'postgres',
   connector: 'postgresql',
   url: '',
-  host: 'localhost',
+  host: 'apibuster-db',
   port: 5432,
   user: 'postgres',
   password: 'admin',

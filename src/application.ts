@@ -40,5 +40,12 @@ export class TestApplication extends BootMixin(
         nested: true,
       },
     };
+
+    this.api({
+      openapi: "3.0.0",
+      info: { title: "", version: "" }, //do not fill this as it is using the name and version from package.json
+      paths: {},
+      servers: [{ url: "/api" }],
+    });
   }
 }
