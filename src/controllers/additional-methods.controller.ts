@@ -1,4 +1,4 @@
-import {inject} from '@loopback/core';
+import { inject } from '@loopback/core';
 import {
   repository
 } from '@loopback/repository';
@@ -9,10 +9,10 @@ import {
 import fs from 'fs';
 import Mocha from 'mocha';
 import multer from 'multer';
-import {Test, TestResult} from '../models';
-import {ApiRepository, MethodRepository, TestGroupRepository, TestRepository, TestResultRepository} from '../repositories';
-import {wrapper} from '../utils/wrapper';
-import {MethodController} from './method.controller';
+import { Test, TestResult } from '../models';
+import { ApiRepository, MethodRepository, TestGroupRepository, TestRepository, TestResultRepository } from '../repositories';
+import { wrapper } from '../utils/wrapper';
+import { MethodController } from './method.controller';
 
 export class AdditionalController {
   constructor(
@@ -31,7 +31,7 @@ export class AdditionalController {
   @post('/apis/{id}/json')
   @response(200, {
     description: 'TestResult model instance',
-    content: {'application/json': {schema: getModelSchemaRef(TestResult)}},
+    content: { 'application/json': { schema: getModelSchemaRef(TestResult) } },
   })
   async apiMethods(
     @requestBody({
@@ -41,7 +41,7 @@ export class AdditionalController {
         'multipart/form-data': {
           // Skip body parsing
           'x-parser': 'stream',
-          schema: {type: 'object'},
+          schema: { type: 'object' },
         },
       },
     })
@@ -50,7 +50,7 @@ export class AdditionalController {
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ): Promise<any> {
     const storage = multer.memoryStorage();
-    const upload = multer({storage});
+    const upload = multer({ storage });
 
     const promise = new Promise<any>((resolve, reject) => {
       upload.any()(request, response, err => {
@@ -123,7 +123,7 @@ export class AdditionalController {
   @get('/test-groups/{id}/run')
   @response(200, {
     description: 'Run Test Group model instance Tests',
-    content: {'application/json': {schema: getModelSchemaRef(Test)}},
+    content: { 'application/json': { schema: getModelSchemaRef(Test) } },
   })
   async runTestgroup(
     @param.path.number('id') id: number,
@@ -142,7 +142,7 @@ export class AdditionalController {
     }
 
     // finds test instance
-    const tests = await wrapper(this.testRepository.find({where: {test_groupId: id}}));
+    const tests = await wrapper(this.testRepository.find({ where: { test_groupId: id } }));
     if (tests.error) {
       throw tests.error;
     }
@@ -188,7 +188,7 @@ export class AdditionalController {
     await fs.promises.writeFile(testFile, content);
 
     // runs
-    mocha.reporter('json', {output: outputFile});
+    mocha.reporter('json', { output: outputFile });
     mocha.addFile(testFile);
     // needs this comand to delete cache after every test run
     // else it blocks the result and the array is empty
@@ -292,7 +292,7 @@ export class AdditionalController {
   @get('/tests/{id}/run')
   @response(200, {
     description: 'Run Test model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Test)}},
+    content: { 'application/json': { schema: getModelSchemaRef(Test) } },
   })
   async runTest(
     @param.path.number('id') id: number,
@@ -348,7 +348,7 @@ export class AdditionalController {
     await fs.promises.writeFile(testFile, content);
 
     // runs
-    mocha.reporter('json', {output: outputFile});
+    mocha.reporter('json', { output: outputFile });
     mocha.addFile(testFile);
     // needs this comand to delete cache after every test run
     // else it blocks the result and the array is empty
@@ -440,7 +440,6 @@ export class AdditionalController {
       result = createdResult.data;
     }
 
-    console.log(result);
     return result;
   }
 
@@ -451,7 +450,7 @@ export class AdditionalController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(TestResult, {includeRelations: true}),
+          items: getModelSchemaRef(TestResult, { includeRelations: true }),
         },
       },
     },
