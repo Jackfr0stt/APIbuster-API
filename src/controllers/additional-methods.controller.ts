@@ -7,6 +7,7 @@ import {
   getModelSchemaRef, param, post, Request, requestBody, Response, response, RestBindings
 } from '@loopback/rest';
 import fs from 'fs';
+import { promisify } from 'util';
 import Mocha from 'mocha';
 import multer from 'multer';
 import { Test, TestResult } from '../models';
@@ -120,6 +121,25 @@ export class AdditionalController {
     }
   }
 
+
+  async testWriter(
+    path: string,
+    content: string,
+  ): Promise<any> {
+    const outputResult = fs.writeFileSync(path, content);
+    const done = "done";
+    return done;
+  }
+
+  async testReader(
+    path: string,
+  ): Promise<any> {
+    const outputResult = fs.readFileSync(path);
+    const output = JSON.parse(outputResult.toString());
+    return output;
+  }
+
+
   @get('/test-groups/{id}/run')
   @response(200, {
     description: 'Run Test Group model instance Tests',
@@ -161,8 +181,8 @@ export class AdditionalController {
 
     // sets files name and path
     const fileName = await testGroup.data.testGroupName.replace(/\s/g, '');
-    const testFile = `src/__tests__/acceptance/${fileName}.test.js`;
-    const outputFile = `src/__tests__/acceptance/${fileName}.json`;
+    const testFile = `src/__tests__/acceptance/${fileName}_id${testGroup.data.id}.test.js`;
+    const outputFile = `src/__tests__/acceptance/${fileName}_id${testGroup.data.id}.json`;
 
     // writes test
     const requirements = `const testlab = require('@loopback/testlab');
@@ -185,6 +205,7 @@ export class AdditionalController {
     expected = expected.replace(/expect/gi, "testlab.expect");
     const content = requirements + describe + expected + closeString + closeString;
 
+    // writes test file
     await fs.promises.writeFile(testFile, content);
 
     // runs
@@ -192,101 +213,117 @@ export class AdditionalController {
     mocha.addFile(testFile);
     // needs this comand to delete cache after every test run
     // else it blocks the result and the array is empty
+
     mocha.suite.on('require', function (global, file) {
       delete require.cache[file];
     });
-    mocha.run();
 
-    // builds test result
-    // TODO: having problems when reading file when file didn't previously exist
-    const outputResult = await fs.promises.readFile(outputFile);
-    const output = JSON.parse(outputResult.toString());
+    const runner = mocha.run();
 
-    await wrapper(this.testGroupRepository.updateById(testGroup.data.id, {
-      testGroupStart: output.stats.start,
-      testGroupEnd: output.stats.end,
-      testGroupDuration: output.stats.duration
-    }));
+    return new Promise((resolve, reject) => {
+      runner.on('end', async () => {
+        runner.removeAllListeners('end');
 
-    // passes array
-    for (let test of output.passes) {
-      const currentTest = await wrapper(this.testRepository.findOne({
-        where: {
-          testName: test.title
+        // builds test result
+        // TODO: having problems when reading file when file didn't previously exist
+        const outputResult = await fs.promises.readFile(outputFile);
+        const output = JSON.parse(outputResult.toString());
+
+        await wrapper(this.testGroupRepository.updateById(testGroup.data.id, {
+          testGroupStart: output.stats.start,
+          testGroupEnd: output.stats.end,
+          testGroupDuration: output.stats.duration
+        }));
+
+        // passes array
+        for (let test of output.passes) {
+          const currentTest = await wrapper(this.testRepository.findOne({
+            where: {
+              testName: test.title
+            }
+          }));
+
+          const testResult = {
+            testId: currentTest.data.id,
+            result_typeId: 1,
+            resultTitle: test.title,
+            resultDuration: test.duration,
+            resultSpeed: test.speed,
+            resultError: test.err.message,
+            resultDate: (new Date()).toISOString()
+          }
+
+          const createdResult = await wrapper(this.testResultRepository.create(testResult));
+          if (createdResult.error) {
+            reject(createdResult.error);
+          }
+
+          await result.passes.push(createdResult.data);
         }
-      }));
 
-      const testResult = {
-        testId: currentTest.data.id,
-        result_typeId: 1,
-        resultTitle: test.title,
-        resultDuration: test.duration,
-        resultSpeed: test.speed,
-        resultError: test.err.message,
-        resultDate: (new Date()).toISOString()
-      }
+        // failures array
+        for (let test of output.failures) {
+          const currentTest = await wrapper(this.testRepository.findOne({
+            where: {
+              testName: test.title
+            }
+          }));
 
-      const createdResult = await wrapper(this.testResultRepository.create(testResult));
-      if (createdResult.error) {
-        throw createdResult.error;
-      }
+          const testResult = {
+            testId: currentTest.data.id,
+            result_typeId: 2,
+            resultTitle: test.title,
+            resultDuration: test.duration,
+            resultSpeed: test.speed,
+            resultError: test.err.message,
+            resultDate: (new Date()).toISOString()
+          }
 
-      await result.passes.push(createdResult.data);
-    }
+          const createdResult = await wrapper(this.testResultRepository.create(testResult));
+          if (createdResult.error) {
+            reject(createdResult.error);
+          }
 
-    // failures array
-    for (let test of output.failures) {
-      const currentTest = await wrapper(this.testRepository.findOne({
-        where: {
-          testName: test.title
+          await result.failures.push(createdResult.data);
         }
-      }));
 
-      const testResult = {
-        testId: currentTest.data.id,
-        result_typeId: 2,
-        resultTitle: test.title,
-        resultDuration: test.duration,
-        resultSpeed: test.speed,
-        resultError: test.err.message,
-        resultDate: (new Date()).toISOString()
-      }
+        // pending array
+        for (let test of output.pending) {
+          const currentTest = await wrapper(this.testRepository.findOne({
+            where: {
+              testName: test.title
+            }
+          }));
 
-      const createdResult = await wrapper(this.testResultRepository.create(testResult));
-      if (createdResult.error) {
-        throw createdResult.error;
-      }
+          const testResult = {
+            testId: currentTest.data.id,
+            result_typeId: 3,
+            resultTitle: test.title,
+            resultDuration: test.duration,
+            resultSpeed: test.speed,
+            resultError: test.err.message,
+            resultDate: (new Date()).toISOString()
+          }
 
-      await result.failures.push(createdResult.data);
-    }
+          const createdResult = await wrapper(this.testResultRepository.create(testResult));
+          if (createdResult.error) {
+            reject(createdResult.error);
+          }
 
-    // pending array
-    for (let test of output.pending) {
-      const currentTest = await wrapper(this.testRepository.findOne({
-        where: {
-          testName: test.title
+          await result.pending.push(createdResult.data);
         }
-      }));
 
-      const testResult = {
-        testId: currentTest.data.id,
-        result_typeId: 3,
-        resultTitle: test.title,
-        resultDuration: test.duration,
-        resultSpeed: test.speed,
-        resultError: test.err.message,
-        resultDate: (new Date()).toISOString()
-      }
+        const latestResults = await wrapper(this.findLatestResults(testGroup.data.id));
+        if (latestResults.error) {
+          reject(latestResults.error);
+        }
 
-      const createdResult = await wrapper(this.testResultRepository.create(testResult));
-      if (createdResult.error) {
-        throw createdResult.error;
-      }
+        // delete file here
 
-      await result.pending.push(createdResult.data);
-    }
-
-    return result;
+        resolve(latestResults.data);
+        // return result;
+      });
+    });
   }
 
   @get('/tests/{id}/run')
@@ -326,8 +363,8 @@ export class AdditionalController {
 
     // sets files name and path
     const fileName = await test.data.testName.replace(/\s/g, '');
-    const testFile = `src/__tests__/acceptance/${fileName}.test.js`;
-    const outputFile = `src/__tests__/acceptance/${fileName}.json`;
+    const testFile = `src/__tests__/acceptance/${fileName}_id${test.data.id}.test.js`;
+    const outputFile = `src/__tests__/acceptance/${fileName}_id${test.data.id}.json`;
 
     // writes test
     const requirements = `const testlab = require('@loopback/testlab');
@@ -355,119 +392,125 @@ export class AdditionalController {
     mocha.suite.on('require', function (global, file) {
       delete require.cache[file];
     });
-    mocha.run();
+    const runner = mocha.run();
 
-    // builds test result
-    // TODO: having problems when reading file when file didn't previously exist
-    const outputResult = await fs.promises.readFile(outputFile);
-    const output = JSON.parse(outputResult.toString());
+    return new Promise((resolve, reject) => {
+      runner.on('end', async () => {
+        runner.removeAllListeners('end');
 
-    await wrapper(this.testGroupRepository.updateById(testGroup.data.id, {
-      testGroupStart: output.stats.start,
-      testGroupEnd: output.stats.end,
-      testGroupDuration: output.stats.duration
-    }));
+        // builds test result
+        // TODO: having problems when reading file when file didn't previously exist
+        const outputResult = await fs.promises.readFile(outputFile);
+        const output = JSON.parse(outputResult.toString());
 
-    for (let test of output.passes) {
-      const currentTest = await wrapper(this.testRepository.findOne({
-        where: {
-          testName: test.title
+        await wrapper(this.testGroupRepository.updateById(testGroup.data.id, {
+          testGroupStart: output.stats.start,
+          testGroupEnd: output.stats.end,
+          testGroupDuration: output.stats.duration
+        }));
+
+        for (let test of output.passes) {
+          const currentTest = await wrapper(this.testRepository.findOne({
+            where: {
+              testName: test.title
+            }
+          }));
+          const testResult = {
+            testId: currentTest.data.id,
+            result_typeId: 1,
+            resultTitle: test.title,
+            resultDuration: test.duration,
+            resultSpeed: test.speed,
+            resultError: test.err.message,
+            resultDate: (new Date()).toISOString()
+          }
+
+          const createdResult = await wrapper(this.testResultRepository.create(testResult));
+          if (createdResult.error) {
+            reject(createdResult.error);
+          }
+
+          result = createdResult.data;
         }
-      }));
-      const testResult = {
-        testId: currentTest.data.id,
-        result_typeId: 1,
-        resultTitle: test.title,
-        resultDuration: test.duration,
-        resultSpeed: test.speed,
-        resultError: test.err.message,
-        resultDate: (new Date()).toISOString()
-      }
 
-      const createdResult = await wrapper(this.testResultRepository.create(testResult));
-      if (createdResult.error) {
-        throw createdResult.error;
-      }
+        for (let test of output.failures) {
+          const currentTest = await wrapper(this.testRepository.findOne({
+            where: {
+              testName: test.title
+            }
+          }));
+          const testResult = {
+            testId: currentTest.data.id,
+            result_typeId: 2,
+            resultTitle: test.title,
+            resultDuration: test.duration,
+            resultSpeed: test.speed,
+            resultError: test.err.message,
+            resultDate: (new Date()).toISOString()
+          }
 
-      result = createdResult.data;
-    }
+          const createdResult = await wrapper(this.testResultRepository.create(testResult));
+          if (createdResult.error) {
+            reject(createdResult.error);
+          }
 
-    for (let test of output.failures) {
-      const currentTest = await wrapper(this.testRepository.findOne({
-        where: {
-          testName: test.title
+          result = createdResult.data;
         }
-      }));
-      const testResult = {
-        testId: currentTest.data.id,
-        result_typeId: 2,
-        resultTitle: test.title,
-        resultDuration: test.duration,
-        resultSpeed: test.speed,
-        resultError: test.err.message,
-        resultDate: (new Date()).toISOString()
-      }
 
-      const createdResult = await wrapper(this.testResultRepository.create(testResult));
-      if (createdResult.error) {
-        throw createdResult.error;
-      }
+        for (let test of output.pending) {
+          const currentTest = await wrapper(this.testRepository.findOne({
+            where: {
+              testName: test.title
+            }
+          }));
+          const testResult = {
+            testId: currentTest.data.id,
+            result_typeId: 3,
+            resultTitle: test.title,
+            resultDuration: test.duration,
+            resultSpeed: test.speed,
+            resultError: test.err.message,
+            resultDate: (new Date()).toISOString()
+          }
 
-      result = createdResult.data;
-    }
+          const createdResult = await wrapper(this.testResultRepository.create(testResult));
+          if (createdResult.error) {
+            reject(createdResult.error);
+          }
 
-    for (let test of output.pending) {
-      const currentTest = await wrapper(this.testRepository.findOne({
-        where: {
-          testName: test.title
+          result = createdResult.data;
         }
-      }));
-      const testResult = {
-        testId: currentTest.data.id,
-        result_typeId: 3,
-        resultTitle: test.title,
-        resultDuration: test.duration,
-        resultSpeed: test.speed,
-        resultError: test.err.message,
-        resultDate: (new Date()).toISOString()
-      }
 
-      const createdResult = await wrapper(this.testResultRepository.create(testResult));
-      if (createdResult.error) {
-        throw createdResult.error;
-      }
-
-      result = createdResult.data;
-    }
-
-    return result;
+        resolve(result);
+      });
+    });
   }
 
   @get('/tests/{id}/testresults')
-  @response(200, {
-    description: 'Array of TestResult model instances',
-    content: {
-      'application/json': {
-        schema: {
-          type: 'array',
-          items: getModelSchemaRef(TestResult, { includeRelations: true }),
+    @response(200, {
+      description: 'Array of TestResult model instances',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'array',
+            items: getModelSchemaRef(TestResult, { includeRelations: true }),
+          },
         },
       },
-    },
-  })
-  async latest(
+    })
+    async latest(
     @param.path.number('id') id: number,
     // @param.filter(TestResult) filter?: Filter<TestResult>,
-  ): Promise<TestResult> {
-    const whereFilter: any = {
-      where: {
-        testId: id
-      },
-      order: ['testResultDate DESC']
-    };
+  ): Promise < TestResult > {
+      const whereFilter: any = {
+        where: {
+          testId: id
+        },
+        order: ['testResultDate DESC']
+      };
 
-    const latestResult = await wrapper(this.testResultRepository.findOne(whereFilter));
-    if (latestResult.error) {
+      const latestResult = await wrapper(this.testResultRepository.findOne(whereFilter));
+      if(latestResult.error) {
       throw latestResult.error;
     }
 
@@ -503,6 +546,7 @@ export class AdditionalController {
     let auxTests: any[] = [];
 
     for (let test of tests.data) {
+
       let auxTest = await Object.assign({}, test);
 
       const resultFilter = {
@@ -518,6 +562,7 @@ export class AdditionalController {
       }
 
       auxTest.latestResult = latestResult.data;
+
       auxTests.push(auxTest);
     }
 
