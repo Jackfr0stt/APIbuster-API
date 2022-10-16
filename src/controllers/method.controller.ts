@@ -9,8 +9,8 @@ import {
   getModelSchemaRef, param, patch, post, put, requestBody,
   response
 } from '@loopback/rest';
-import {Method} from '../models';
-import {MethodRepository} from '../repositories';
+import { Method } from '../models';
+import { MethodRepository } from '../repositories';
 
 export class MethodController {
   constructor(
@@ -21,7 +21,7 @@ export class MethodController {
   @post('/methods')
   @response(200, {
     description: 'Method model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Method)}},
+    content: { 'application/json': { schema: getModelSchemaRef(Method) } },
   })
   async create(
     @requestBody({
@@ -42,7 +42,7 @@ export class MethodController {
   @get('/methods/count')
   @response(200, {
     description: 'Method model count',
-    content: {'application/json': {schema: CountSchema}},
+    content: { 'application/json': { schema: CountSchema } },
   })
   async count(
     @param.where(Method) where?: Where<Method>,
@@ -57,7 +57,7 @@ export class MethodController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(Method, {includeRelations: true}),
+          items: getModelSchemaRef(Method, { includeRelations: true }),
         },
       },
     },
@@ -72,13 +72,13 @@ export class MethodController {
   @patch('/methods')
   @response(200, {
     description: 'Method PATCH success count',
-    content: {'application/json': {schema: CountSchema}},
+    content: { 'application/json': { schema: CountSchema } },
   })
   async updateAll(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Method, {partial: true}),
+          schema: getModelSchemaRef(Method, { partial: true }),
         },
       },
     })
@@ -93,13 +93,13 @@ export class MethodController {
     description: 'Method model instance',
     content: {
       'application/json': {
-        schema: getModelSchemaRef(Method, {includeRelations: true}),
+        schema: getModelSchemaRef(Method, { includeRelations: true }),
       },
     },
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(Method, {exclude: 'where'}) filter?: FilterExcludingWhere<Method>
+    @param.filter(Method, { exclude: 'where' }) filter?: FilterExcludingWhere<Method>
   ): Promise<Method> {
     return this.methodRepository.findById(id, filter);
   }
@@ -113,7 +113,7 @@ export class MethodController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Method, {partial: true}),
+          schema: getModelSchemaRef(Method, { partial: true }),
         },
       },
     })

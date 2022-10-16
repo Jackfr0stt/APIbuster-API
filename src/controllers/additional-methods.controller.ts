@@ -121,25 +121,6 @@ export class AdditionalController {
     }
   }
 
-
-  async testWriter(
-    path: string,
-    content: string,
-  ): Promise<any> {
-    const outputResult = fs.writeFileSync(path, content);
-    const done = "done";
-    return done;
-  }
-
-  async testReader(
-    path: string,
-  ): Promise<any> {
-    const outputResult = fs.readFileSync(path);
-    const output = JSON.parse(outputResult.toString());
-    return output;
-  }
-
-
   @get('/test-groups/{id}/run')
   @response(200, {
     description: 'Run Test Group model instance Tests',
@@ -182,7 +163,16 @@ export class AdditionalController {
     // sets files name and path
     const fileName = await testGroup.data.testGroupName.replace(/\s/g, '');
     const testFile = `src/__tests__/acceptance/${fileName}_id${testGroup.data.id}.test.js`;
-    const outputFile = `src/__tests__/acceptance/${fileName}_id${testGroup.data.id}.json`;
+
+    const countFilter = {
+      testId: tests.data[0].id
+    }
+
+    const runs = await wrapper(this.testResultRepository.count(countFilter));
+    if (runs.error) {
+      throw runs.error;
+    }
+    const outputFile = `src/__tests__/acceptance/${fileName}_id${testGroup.data.id}_run${runs.data.count + 1}.json`;
 
     // writes test
     const requirements = `const testlab = require('@loopback/testlab');
@@ -213,7 +203,6 @@ export class AdditionalController {
     mocha.addFile(testFile);
     // needs this comand to delete cache after every test run
     // else it blocks the result and the array is empty
-
     mocha.suite.on('require', function (global, file) {
       delete require.cache[file];
     });
@@ -225,7 +214,6 @@ export class AdditionalController {
         runner.removeAllListeners('end');
 
         // builds test result
-        // TODO: having problems when reading file when file didn't previously exist
         const outputResult = await fs.promises.readFile(outputFile);
         const output = JSON.parse(outputResult.toString());
 
@@ -242,6 +230,9 @@ export class AdditionalController {
               testName: test.title
             }
           }));
+          if (currentTest.error) {
+            reject(currentTest.error);
+          }
 
           const testResult = {
             testId: currentTest.data.id,
@@ -268,6 +259,9 @@ export class AdditionalController {
               testName: test.title
             }
           }));
+          if (currentTest.error) {
+            reject(currentTest.error);
+          }
 
           const testResult = {
             testId: currentTest.data.id,
@@ -294,6 +288,9 @@ export class AdditionalController {
               testName: test.title
             }
           }));
+          if (currentTest.error) {
+            reject(currentTest.error);
+          }
 
           const testResult = {
             testId: currentTest.data.id,
@@ -318,10 +315,15 @@ export class AdditionalController {
           reject(latestResults.error);
         }
 
-        // delete file here
+        // deletes files
+        console.log("before group delete");
+        const deleteOutput = await wrapper(fs.promises.unlink(outputFile));
+        if (deleteOutput.error) {
+          reject(deleteOutput.error);
+        }
+        console.log("after group delete");
 
         resolve(latestResults.data);
-        // return result;
       });
     });
   }
@@ -364,7 +366,16 @@ export class AdditionalController {
     // sets files name and path
     const fileName = await test.data.testName.replace(/\s/g, '');
     const testFile = `src/__tests__/acceptance/${fileName}_id${test.data.id}.test.js`;
-    const outputFile = `src/__tests__/acceptance/${fileName}_id${test.data.id}.json`;
+
+    const countFilter = {
+      testId: test.data.id
+    }
+
+    const runs = await wrapper(this.testResultRepository.count(countFilter));
+    if (runs.error) {
+      throw runs.error;
+    }
+    const outputFile = `src/__tests__/acceptance/${fileName}_id${test.data.id}_run${runs.data.count + 1}.json`;
 
     // writes test
     const requirements = `const testlab = require('@loopback/testlab');
@@ -415,6 +426,10 @@ export class AdditionalController {
               testName: test.title
             }
           }));
+          if (currentTest.error) {
+            reject(currentTest.error);
+          }
+
           const testResult = {
             testId: currentTest.data.id,
             result_typeId: 1,
@@ -439,6 +454,10 @@ export class AdditionalController {
               testName: test.title
             }
           }));
+          if (currentTest.error) {
+            reject(currentTest.error);
+          }
+
           const testResult = {
             testId: currentTest.data.id,
             result_typeId: 2,
@@ -463,6 +482,10 @@ export class AdditionalController {
               testName: test.title
             }
           }));
+          if (currentTest.error) {
+            reject(currentTest.error);
+          }
+
           const testResult = {
             testId: currentTest.data.id,
             result_typeId: 3,
@@ -481,36 +504,43 @@ export class AdditionalController {
           result = createdResult.data;
         }
 
+        // deletes files
+        console.log("before test delete");
+        const deleteOutput = await wrapper(fs.promises.unlink(outputFile));
+        if (deleteOutput.error) {
+          reject(deleteOutput.error);
+        }
+        console.log("after test delete");
+
         resolve(result);
       });
     });
   }
 
   @get('/tests/{id}/testresults')
-    @response(200, {
-      description: 'Array of TestResult model instances',
-      content: {
-        'application/json': {
-          schema: {
-            type: 'array',
-            items: getModelSchemaRef(TestResult, { includeRelations: true }),
-          },
+  @response(200, {
+    description: 'Array of TestResult model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(TestResult, { includeRelations: true }),
         },
       },
-    })
-    async latest(
+    },
+  })
+  async latest(
     @param.path.number('id') id: number,
-    // @param.filter(TestResult) filter?: Filter<TestResult>,
-  ): Promise < TestResult > {
-      const whereFilter: any = {
-        where: {
-          testId: id
-        },
-        order: ['testResultDate DESC']
-      };
+  ): Promise<TestResult> {
+    const whereFilter: any = {
+      where: {
+        testId: id
+      },
+      order: ['testResultDate DESC']
+    };
 
-      const latestResult = await wrapper(this.testResultRepository.findOne(whereFilter));
-      if(latestResult.error) {
+    const latestResult = await wrapper(this.testResultRepository.findOne(whereFilter));
+    if (latestResult.error) {
       throw latestResult.error;
     }
 
