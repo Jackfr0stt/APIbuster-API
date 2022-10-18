@@ -162,7 +162,7 @@ export class AdditionalController {
 
     // sets files name and path
     const fileName = await testGroup.data.testGroupName.replace(/\s/g, '');
-    const testFile = `src/__tests__/acceptance/${fileName}_id${testGroup.data.id}.test.js`;
+    const testFile = `src/__tests__/${fileName}_id${testGroup.data.id}.test.js`;
 
     const countFilter = {
       testId: tests.data[0].id
@@ -172,7 +172,10 @@ export class AdditionalController {
     if (runs.error) {
       throw runs.error;
     }
-    const outputFile = `src/__tests__/acceptance/${fileName}_id${testGroup.data.id}_run${runs.data.count + 1}.json`;
+    // const outputFile = `src/__tests__/${fileName}_id${testGroup.data.id}_run${runs.data.count + 1}.json`;
+
+    let outputFileName = `src/__tests__/${fileName}_id${testGroup.data.id}_run${runs.data.count + 1}`;
+    let outputFile = `${outputFileName}.json`;
 
     // writes test
     const requirements = `const testlab = require('@loopback/testlab');
@@ -197,6 +200,24 @@ export class AdditionalController {
 
     // writes test file
     await fs.promises.writeFile(testFile, content);
+
+    // checks output file concurrency
+    async function checkName(fileName: string) {
+      const exists = await wrapper(fs.promises.access(fileName, fs.promises.constants.F_OK));
+      console.log(outputFileName);
+      if (exists.error)
+        console.log(exists.error.code);
+
+      else {
+        outputFileName = outputFileName + "0";
+        console.log("NEW NAME: ", outputFileName);
+        outputFile = `${outputFileName}.json`;
+        await checkName(fileName);
+      }
+
+    }
+
+    await checkName(outputFile);
 
     // runs
     mocha.reporter('json', { output: outputFile });
@@ -316,12 +337,10 @@ export class AdditionalController {
         }
 
         // deletes files
-        console.log("before group delete");
         const deleteOutput = await wrapper(fs.promises.unlink(outputFile));
         if (deleteOutput.error) {
           reject(deleteOutput.error);
         }
-        console.log("after group delete");
 
         resolve(latestResults.data);
       });
@@ -365,7 +384,7 @@ export class AdditionalController {
 
     // sets files name and path
     const fileName = await test.data.testName.replace(/\s/g, '');
-    const testFile = `src/__tests__/acceptance/${fileName}_id${test.data.id}.test.js`;
+    const testFile = `src/__tests__/${fileName}_id${test.data.id}.test.js`;
 
     const countFilter = {
       testId: test.data.id
@@ -375,7 +394,11 @@ export class AdditionalController {
     if (runs.error) {
       throw runs.error;
     }
-    const outputFile = `src/__tests__/acceptance/${fileName}_id${test.data.id}_run${runs.data.count + 1}.json`;
+
+    let outputFileName = `src/__tests__/${fileName}_id${test.data.id}_run${runs.data.count + 1}`;
+    let outputFile = `${outputFileName}.json`;
+
+    // outputFile = `${outputFileName}.json`;
 
     // writes test
     const requirements = `const testlab = require('@loopback/testlab');
@@ -394,6 +417,24 @@ export class AdditionalController {
     const content = requirements + describe + expected + closeString + closeString + closeString;
 
     await fs.promises.writeFile(testFile, content);
+
+    // checks output file concurrency
+    async function checkName(fileName: string) {
+      const exists = await wrapper(fs.promises.access(fileName, fs.promises.constants.F_OK));
+      console.log(outputFileName);
+      if (exists.error)
+        console.log(exists.error.code);
+
+      else {
+        outputFileName = outputFileName + "0";
+        console.log("NEW NAME: ", outputFileName);
+        outputFile = `${outputFileName}.json`;
+        await checkName(fileName);
+      }
+
+    }
+
+    await checkName(outputFile);
 
     // runs
     mocha.reporter('json', { output: outputFile });
@@ -505,12 +546,10 @@ export class AdditionalController {
         }
 
         // deletes files
-        console.log("before test delete");
         const deleteOutput = await wrapper(fs.promises.unlink(outputFile));
         if (deleteOutput.error) {
           reject(deleteOutput.error);
         }
-        console.log("after test delete");
 
         resolve(result);
       });
