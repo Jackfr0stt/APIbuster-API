@@ -14,6 +14,7 @@ import { Test, TestResult } from '../models';
 import { ApiRepository, MethodRepository, TestGroupRepository, TestRepository, TestResultRepository } from '../repositories';
 import { wrapper } from '../utils/wrapper';
 import { MethodController } from './method.controller';
+var randomstring = require("randomstring");
 
 export class AdditionalController {
   constructor(
@@ -164,17 +165,7 @@ export class AdditionalController {
     const fileName = await testGroup.data.testGroupName.replace(/\s/g, '');
     const testFile = `src/__tests__/${fileName}_id${testGroup.data.id}.test.js`;
 
-    const countFilter = {
-      testId: tests.data[0].id
-    }
-
-    const runs = await wrapper(this.testResultRepository.count(countFilter));
-    if (runs.error) {
-      throw runs.error;
-    }
-    // const outputFile = `src/__tests__/${fileName}_id${testGroup.data.id}_run${runs.data.count + 1}.json`;
-
-    let outputFileName = `src/__tests__/${fileName}_id${testGroup.data.id}_run${runs.data.count + 1}`;
+    let outputFileName = `src/__tests__/${fileName}_id${testGroup.data.id}_${randomstring.generate()}`;
     let outputFile = `${outputFileName}.json`;
 
     // writes test
@@ -204,12 +195,12 @@ export class AdditionalController {
     // checks output file concurrency
     async function checkName(fileName: string) {
       const exists = await wrapper(fs.promises.access(fileName, fs.promises.constants.F_OK));
-      console.log(outputFileName);
-      if (exists.error)
-        console.log(exists.error.code);
-
-      else {
-        outputFileName = outputFileName + "0";
+      if (exists.error) {
+        // console.log(exists.error.code);
+        console.log("DOESN'T EXIST!");
+      } else {
+        console.log("UPDATING NAME!");
+        outputFileName = `src/__tests__/${fileName}_id${testGroup.data.id}_${randomstring.generate()}`;
         console.log("NEW NAME: ", outputFileName);
         outputFile = `${outputFileName}.json`;
         await checkName(fileName);
@@ -221,6 +212,7 @@ export class AdditionalController {
 
     // runs
     mocha.reporter('json', { output: outputFile });
+    mocha.timeout(5000);
     mocha.addFile(testFile);
     // needs this comand to delete cache after every test run
     // else it blocks the result and the array is empty
@@ -233,6 +225,8 @@ export class AdditionalController {
     return new Promise((resolve, reject) => {
       runner.on('end', async () => {
         runner.removeAllListeners('end');
+
+        runner.dispose();
 
         // builds test result
         const outputResult = await fs.promises.readFile(outputFile);
@@ -386,19 +380,8 @@ export class AdditionalController {
     const fileName = await test.data.testName.replace(/\s/g, '');
     const testFile = `src/__tests__/${fileName}_id${test.data.id}.test.js`;
 
-    const countFilter = {
-      testId: test.data.id
-    }
-
-    const runs = await wrapper(this.testResultRepository.count(countFilter));
-    if (runs.error) {
-      throw runs.error;
-    }
-
-    let outputFileName = `src/__tests__/${fileName}_id${test.data.id}_run${runs.data.count + 1}`;
+    let outputFileName = `src/__tests__/${fileName}_id${test.data.id}_${randomstring.generate()}`;
     let outputFile = `${outputFileName}.json`;
-
-    // outputFile = `${outputFileName}.json`;
 
     // writes test
     const requirements = `const testlab = require('@loopback/testlab');
@@ -421,12 +404,12 @@ export class AdditionalController {
     // checks output file concurrency
     async function checkName(fileName: string) {
       const exists = await wrapper(fs.promises.access(fileName, fs.promises.constants.F_OK));
-      console.log(outputFileName);
-      if (exists.error)
-        console.log(exists.error.code);
-
-      else {
-        outputFileName = outputFileName + "0";
+      if (exists.error) {
+        // console.log(exists.error.code);
+        console.log("DOESN'T EXIST!");
+      } else {
+        console.log("UPDATING NAME!");
+        outputFileName = `src/__tests__/${fileName}_id${testGroup.data.id}_${randomstring.generate()}`;
         console.log("NEW NAME: ", outputFileName);
         outputFile = `${outputFileName}.json`;
         await checkName(fileName);
@@ -438,6 +421,7 @@ export class AdditionalController {
 
     // runs
     mocha.reporter('json', { output: outputFile });
+    mocha.timeout(5000);
     mocha.addFile(testFile);
     // needs this comand to delete cache after every test run
     // else it blocks the result and the array is empty
